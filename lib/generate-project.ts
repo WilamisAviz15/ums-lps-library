@@ -7,7 +7,7 @@ import * as fse from 'fs-extra';
 
 // Caminhos para os módulos e microsserviços
 const MODULES_PATH = path.resolve(__dirname, 'src', 'modules');
-const MICROSERVICES_PATH = path.resolve(__dirname, 'api', 'microsservices');
+const MICROSERVICES_PATH = path.resolve(__dirname, 'microsservices'); // Caminho base para microsserviços
 const SRC_PATH = path.resolve(__dirname, 'src');
 
 const questions = [
@@ -15,12 +15,18 @@ const questions = [
     type: 'checkbox',
     name: 'modules',
     message: 'Selecione os módulos que deseja incluir no projeto:',
-    choices: fs.readdirSync(MODULES_PATH)
-  }
+    choices: fs.readdirSync(MODULES_PATH),
+  },
+  {
+    type: 'checkbox', // Alterado para checkbox
+    name: 'microservices',
+    message: 'Selecione os microsserviços que deseja incluir no projeto:',
+    choices: fs.readdirSync(MICROSERVICES_PATH), // Lista as pastas disponíveis em microsservices
+  },
 ];
 
 prompt(questions).then((answers) => {
-  const { modules } = answers;
+  const { modules, microservices } = answers;
 
   // Caminho para o novo projeto (onde os arquivos serão copiados)
   const projectPath = path.resolve(process.cwd());
@@ -34,17 +40,17 @@ prompt(questions).then((answers) => {
     console.log(`Módulo ${module} copiado para ${moduleDestPath}`);
   });
 
-  // Copiar os módulos selecionados da pasta 'microsservices'
-  modules.forEach((module: string) => {
-    const microserviceSrcPath = path.join(MICROSERVICES_PATH, module);
-    const microserviceDestPath = path.join(projectPath, 'microsservices', module);
+  // Copiar os microsserviços selecionados da pasta 'microsservices'
+  microservices.forEach((microservice: string) => {
+    const microserviceSrcPath = path.join(MICROSERVICES_PATH, microservice);
+    const microserviceDestPath = path.join(projectPath, 'microsservices', microservice);
 
-    // Verifica se o módulo correspondente existe em 'microsservices' antes de copiar
+    // Verifica se o microsserviço correspondente existe antes de copiar
     if (fs.existsSync(microserviceSrcPath)) {
       fse.copySync(microserviceSrcPath, microserviceDestPath);
-      console.log(`Microsserviço ${module} copiado para ${microserviceDestPath}`);
+      console.log(`Microsserviço ${microservice} copiado para ${microserviceDestPath}`);
     } else {
-      console.log(`Microsserviço ${module} não encontrado, pulando...`);
+      console.log(`Microsserviço ${microservice} não encontrado, pulando...`);
     }
   });
 
